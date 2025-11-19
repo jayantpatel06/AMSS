@@ -4,7 +4,6 @@ import { api } from './services/api';
 import { TeacherDashboard } from './components/TeacherDashboard';
 import { StudentDashboard } from './components/StudentDashboard';
 import { AdminDashboard } from './components/AdminDashboard';
-import { AIChatbot } from './components/AIChatbot';
 import { Button } from './components/Button';
 import { LogOut, School } from 'lucide-react';
 
@@ -108,11 +107,6 @@ const App: React.FC = () => {
         {user.role === UserRole.STUDENT && <StudentDashboard user={user} />}
         {user.role === UserRole.ADMIN && <AdminDashboard />}
       </main>
-
-      {/* AI Integration */}
-      {(user.role === UserRole.TEACHER || user.role === UserRole.ADMIN) && (
-        <AIChatbot />
-      )}
     </div>
   );
 };

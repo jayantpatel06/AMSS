@@ -10,7 +10,6 @@ export default defineConfig(({ mode }) => {
     plugins: [react()],
     define: {
       // Polyfill process.env for libraries that might use it
-      'process.env.API_KEY': JSON.stringify(env.API_KEY),
       'process.env': {}
     },
     server: {

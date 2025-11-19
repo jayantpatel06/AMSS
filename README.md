@@ -20,7 +20,6 @@ Render can host both the Node.js API and the React frontend in a single service.
 4. **Start Command**: `npm start`
 5. **Environment Variables**:
    - `MONGODB_URI`: Your MongoDB connection string.
-   - `API_KEY`: Google Gemini API Key.
 
 ### 3. Deploy to Vercel (Frontend Only)
 If you prefer Vercel for the frontend:
@@ -31,5 +30,5 @@ If you prefer Vercel for the frontend:
 
 ## Local Development
 1. `npm install`
-2. Create `.env` file with `MONGODB_URI` and `API_KEY`.
+2. Create `.env` file with `MONGODB_URI`.
 3. `npm run dev` (Frontend) & `node server.js` (Backend).
