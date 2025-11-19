@@ -1,0 +1,7 @@
+{
+  "name": "Copy of GeoAttend - Smart Attendance System",
+  "description": "A secure, Wi-Fi based attendance system using IP matching and AI analytics.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
