@@ -12,7 +12,15 @@ const getApiUrl = () => {
 
 const API_URL = getApiUrl();
 
-export const getPublicIP = async (): Promise<string> => {
+export const getIP = async (): Promise<string> => {
+  try {
+    // Try to get local IP via WebRTC first
+    const localIp = await getLocalIP();
+    if (localIp) return localIp;
+  } catch (e) {
+    console.warn("Failed to get local IP, falling back to public", e);
+  }
+
   try {
     const response = await fetch('https://api.ipify.org?format=json');
     const data = await response.json();
@@ -22,6 +30,41 @@ export const getPublicIP = async (): Promise<string> => {
     return '127.0.0.1';
   }
 };
+
+// WebRTC Local IP detection
+const getLocalIP = (): Promise<string | null> => {
+  return new Promise((resolve) => {
+    try {
+      const pc = new RTCPeerConnection({ iceServers: [] });
+      pc.createDataChannel('');
+      pc.createOffer().then(pc.setLocalDescription.bind(pc));
+
+      pc.onicecandidate = (ice) => {
+        if (!ice || !ice.candidate || !ice.candidate.candidate) {
+          // No more candidates or invalid
+          return;
+        }
+        const myIP = /([0-9]{1,3}(\.[0-9]{1,3}){3}|[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7})/.exec(ice.candidate.candidate)?.[1];
+        if (myIP) {
+          pc.onicecandidate = null;
+          pc.close();
+          resolve(myIP);
+        }
+      };
+
+      // Timeout after 1s
+      setTimeout(() => {
+        pc.close();
+        resolve(null);
+      }, 1000);
+    } catch (e) {
+      resolve(null);
+    }
+  });
+};
+
+// Export alias for backward compatibility if needed, or update call sites
+export const getPublicIP = getIP;
 
 export const api = {
   login: async (email: string): Promise<User | undefined> => {
@@ -106,12 +149,12 @@ export const api = {
   getStudentHistory: async (studentId: string): Promise<(AttendanceRecord & { sessionSubject?: string; sessionDate?: string })[]> => {
     const attendanceRes = await fetch(`${API_URL}/attendance?studentId=${studentId}`);
     const records: AttendanceRecord[] = await attendanceRes.json();
-    
+
     // Fetch sessions for details (not efficient, but MVP)
     const enriched = await Promise.all(records.map(async (r) => {
-      return { ...r, sessionSubject: 'Class', sessionDate: r.timestamp }; 
+      return { ...r, sessionSubject: 'Class', sessionDate: r.timestamp };
     }));
-    
+
     return enriched;
   },
 

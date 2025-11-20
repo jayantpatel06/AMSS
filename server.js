@@ -55,10 +55,11 @@ const Attendance = mongoose.model('Attendance', attendanceSchema);
 
 // Helper: IP matching
 const checkIpMatch = (teacherIp, studentIp) => {
-  // Simple Subnet match (first 3 octets)
+  // Relaxed Subnet match (first 2 octets) to handle different subnets in same network
+  // or different public IPs from same ISP/Hotspot
   const tParts = teacherIp.split('.');
   const sParts = studentIp.split('.');
-  return tParts[0] === sParts[0] && tParts[1] === sParts[1] && tParts[2] === sParts[2];
+  return tParts[0] === sParts[0] && tParts[1] === sParts[1];
 };
 
 // Routes
