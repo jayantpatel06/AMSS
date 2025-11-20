@@ -39,10 +39,3 @@ export interface AttendanceRecord {
   timestamp: string;
   studentIp: string;
 }
-
-// Initial Mock Data Types
-export interface DbSchema {
-  users: User[];
-  sessions: Session[];
-  attendance: AttendanceRecord[];
-}

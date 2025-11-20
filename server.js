@@ -12,7 +12,11 @@ const PORT = process.env.PORT || 3000;
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: process.env.CLIENT_URL || '*', // Allow Vercel frontend
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'dist')));
 
@@ -94,7 +98,7 @@ app.post('/api/sessions', async (req, res) => {
     const { teacherId, subject, teacherIp } = req.body;
     // Deactivate other sessions for this teacher
     await Session.updateMany({ teacherId, isActive: true }, { isActive: false });
-    
+
     const session = await Session.create({
       teacherId,
       subject,
@@ -111,7 +115,7 @@ app.get('/api/sessions', async (req, res) => {
     const query = {};
     if (teacherId) query.teacherId = teacherId;
     if (active === 'true') query.isActive = true;
-    
+
     const sessions = await Session.find(query).sort({ date: -1 });
     res.json(sessions);
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -128,7 +132,7 @@ app.post('/api/attendance', async (req, res) => {
   try {
     const { sessionId, studentId, studentName, studentIp } = req.body;
     const session = await Session.findById(sessionId);
-    
+
     if (!session) return res.status(404).json({ error: 'Session not found' });
     if (!session.isActive) return res.status(400).json({ error: 'Session is closed' });
 
@@ -143,7 +147,7 @@ app.post('/api/attendance', async (req, res) => {
       studentIp,
       status
     });
-    
+
     res.json(record);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -154,7 +158,7 @@ app.get('/api/attendance', async (req, res) => {
     const query = {};
     if (sessionId) query.sessionId = sessionId;
     if (studentId) query.studentId = studentId;
-    
+
     const records = await Attendance.find(query).sort({ timestamp: -1 });
     res.json(records);
   } catch (e) { res.status(500).json({ error: e.message }); }
